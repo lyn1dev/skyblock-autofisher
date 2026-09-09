@@ -28,6 +28,7 @@ public class ExampleModClient implements ClientModInitializer {
 	private static final Random RANDOM = new Random();
 
 	private long lastDetectionTime = 0;
+	private static int catchCount = 0; // Counter to trigger Fireveil every 2nd catch
 	private static boolean isFireveilRunning = false;
 	private static ScheduledFuture<?> recastTask;
 
@@ -73,9 +74,13 @@ public class ExampleModClient implements ClientModInitializer {
 			// Reel in the fish (Right Click)
 			client.gameMode.useItem(client.player, InteractionHand.MAIN_HAND);
 
-			// Unconditionally trigger Fireveil after every catch to guarantee 100% aura uptime.
-			// This replaces the old unreliable chat-parsing logic.
-			if (AutoFisherConfig.fireveilEnabled) {
+			catchCount++;
+
+			// Triggers Fireveil exactly every 2nd catch. 
+			// This replaces the old unreliable chat-parsing logic and perfectly balances 
+			// maximum aura uptime with optimal mana conservation.
+			if (AutoFisherConfig.fireveilEnabled && catchCount >= 2) {
+				catchCount = 0; // Reset counter
 				triggerFireveilSequence(client);
 			} else if (AutoFisherConfig.enableRecast) {
 				scheduleRecast(client);
